@@ -1,0 +1,113 @@
+from typing import List, Tuple, Callable
+import math
+
+Vector = List[float]
+Matrix = List[List[float]]
+
+def add(v: Vector, w: Vector) -> Vector:
+    '''must be the same length'''
+    assert len(v)==len(w)
+    
+    return [v_i + w_i for v_i,w_i in zip(v,w)]
+
+def substract(v: Vector, w: Vector) -> Vector:
+    '''must be the same length'''
+    assert len(v)==len(w)
+    
+    return [v_i - w_i for v_i,w_i in zip(v,w)]
+
+
+'''
+We’ll also sometimes want to componentwise sum a list of vectors — 
+that is, create a new vector whose first element is the sum of all the first elements
+, whose second element is the sum of all the second elements, and so on:
+'''
+def vector_sum(vectors: List[Vector]) -> Vector:
+    '''Sum all corresponding elements'''
+    
+    # check that vectors is not empty
+    assert vectors, "no vectors provided"
+    
+    # check that vectors are the same size
+    num_elements = len(vectors[0])
+    assert all(num_elements == len(vec) for vec in vectors), "different sizes"
+        
+    return [
+        # for each vector
+        sum(vector[i] for vector in vectors) 
+        # sum all the elements
+        for i in range(num_elements)
+    ]
+
+'''We’ll also need to be able to multiply a vector by a scalar
+, which we do simply by multiplying each element of the vector by that number:'''
+
+def scalar_multiply(c: float, v: Vector) -> Vector:
+    '''Multiplies every element by c'''
+    return [c*v_i for v_i in v]
+
+def vector_mean(vectors: List[Vector]) -> Vector:
+    '''Computes the element-wise average'''
+    n = len(vectors)
+    return scalar_multiply(1/n,vector_sum(vectors)) 
+
+
+def dot_product(v: Vector, w: Vector) -> float:
+    '''Computes v_1 * w_1 + .. + v_n * w_n...'''
+    assert len(v)==len(w) # must be same length
+    
+    return sum(v_i * w_i for v_i,w_i in zip(v,w))
+
+
+def sum_of_squares(v: Vector) -> float:
+    '''returns v_1 * v_1 + ... + v_n * v_n'''
+    return dot_product(v,v)
+
+
+def magnitude(v: Vector):
+    return math.sqrt(sum_of_squares(v))
+
+
+def squared_distance(v: Vector, w: Vector) -> float:
+    ''' Computes (v_1 - w_1) ** 2 + ... + (v_n - w_n) ** 2'''
+    assert len(v)==len(w)
+    
+    return sum_of_squares(substract(v,w))
+
+def distance(v: Vector, w: Vector) -> float:
+    assert len(v)==len(w)
+    
+    return math.sqrt(squared_distance(v,w))
+
+
+######## Matrices #############
+
+def shape(A: Matrix) -> Tuple[int, int]:
+    ''' returns (# of rows of A, # of columns of A)'''
+    num_rows = len(A)
+    num_cols = len(A[0]) if A else 0
+    return num_rows, num_cols
+
+''' we can think of each row is a vector and each column is a vector'''
+def get_row(A: Matrix, i: int) -> Vector:
+    return A[i]
+
+
+def get_column(A: Matrix, i: int) -> Vector:
+    assert i<len(A), 'index out of range'
+#     col = []
+#     for x in range(len(A)):
+#         col.append(A[x][i])
+#     return col
+
+    # better implementation
+    return [row[i]
+                for row in A]
+
+def make_matrix(num_rows: int,
+               num_cols: int,
+               entry_fn: Callable[[int, int], float]) -> Matrix:
+    
+    return [[entry_fn(i,j)
+                for j in range(num_cols)]
+            for i in range(num_rows)]
