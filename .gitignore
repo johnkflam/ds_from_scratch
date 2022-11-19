@@ -1,2 +1,4 @@
 **/*.pyc
+spam_data
+**/spam_data/
 .ipynb_checkpoints
